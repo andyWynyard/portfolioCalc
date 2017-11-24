@@ -14,8 +14,8 @@ Instructions:
 
 Todo:
 
- [ ] Refactor out Calculation functions
- [ ] Create front end in React
- [ ] Store Securities on MongoDB
- [ ] Test
- [ ] Deploy everything
+* [ ] Refactor out Calculation functions
+* [ ] Create front end in React
+* [ ] Store Securities on MongoDB
+* [ ] Test
+* [ ] Deploy everything
