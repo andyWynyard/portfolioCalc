@@ -1,0 +1,23 @@
+{
+	"id": "1",
+	"transactions": [
+		{
+			"securityId": "D",
+			"type": "buy",
+			"date": "2004-12-01",
+			"amount": "1000"
+		},
+		{
+			"securityId": "D",
+			"type": "sell",
+			"date": "2008-01-12",
+			"amount": "500"
+		},
+    {
+			"securityId": "E",
+			"type": "buy",
+			"date": "2008-01-12",
+			"amount": "500"
+		}
+	]
+}

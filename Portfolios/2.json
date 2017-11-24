@@ -1,0 +1,11 @@
+{
+	"id": "2",
+	"transactions": [
+		{
+			"securityId": "A",
+			"type": "buy",
+			"date": "2004-11-30",
+			"amount": "20000"
+		}
+	]
+}

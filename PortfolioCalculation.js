@@ -1,81 +1,28 @@
 const moment = require('moment');
+const fs = require('fs');
 
-const port3 = require('./Portfolios/3');
-const port4 = require('./Portfolios/4');
-
-const secA = require('./Securities/A');
-const secB = require('./Securities/B');
-const secC = require('./Securities/C');
-const secD = require('./Securities/D');
-
-let portfolio;
 const date = process.argv[3];
+let rawdata = fs.readFileSync(`./Portfolios/${process.argv[2]}.json`);
+let portfolio = JSON.parse(rawdata);
 let sharesBought;
 let currentPortVal;
 
-// What portfolio is being used
-// Needs to be refactored if more portfolios are used
-// Will always use 4 if other numbers are passed
-process.argv[2] == 3 ? (portfolio = port3) : (portfolio = port4);
-
-let totA = 0;
-let totB = 0;
-let totC = 0;
-let totD = 0;
-
-let valA = 0;
-let valB = 0;
-let valC = 0;
-let valD = 0;
+let tot = 0;
+let val = 0;
 
 // Figure out what Security is being accessed
 // Switch through the Securities for each transaction
 portfolio.transactions.forEach((val, index) => {
-  switch (val.securityId) {
-    case 'A':
-      calcShareVal(
-        secA.historyDetails,
-        val.date,
-        val.amount,
-        val.type,
-        val.securityId,
-        date
-      );
-      break;
-    case 'B':
-      calcShareVal(
-        secB.historyDetails,
-        val.date,
-        val.amount,
-        val.type,
-        val.securityId,
-        date
-      );
-      break;
-    case 'C':
-      calcShareVal(
-        secC.historyDetails,
-        val.date,
-        val.amount,
-        val.type,
-        val.securityId,
-        date
-      );
-      break;
-    case 'D':
-      calcShareVal(
-        secD.historyDetails,
-        val.date,
-        val.amount,
-        val.type,
-        val.securityId,
-        date
-      );
-      break;
-    default:
-      console.log(`404 not found`);
-      break;
-  }
+  let raw = fs.readFileSync(`./Securities/${val.securityId}.json`);
+  let currentSecurity = JSON.parse(raw);
+  calcShareVal(
+    currentSecurity.historyDetails,
+    val.date,
+    val.amount,
+    val.type,
+    val.securityId,
+    date
+  );
 });
 
 /**********************************
@@ -83,22 +30,7 @@ PRINT OUTS FOR RESULTS
 **********************************/
 
 console.log(`*********** PORTFOLIO: ${process.argv[2]} ***********`);
-
-/**************************************************
-Uncomment the following lines
-for a more detailed list of what you have
-***************************************************/
-
-// console.log(`A: ${totA} shares @ ${valA}`);
-// console.log(`B: ${totB} shares @ ${valB}`);
-// console.log(`C: ${totC} shares @ ${valC}`);
-// console.log(`D: ${totD} shares @ ${valD}`);
-
-console.log(
-  `Total portfolio value: ${Number(
-    (totA * valA + totB * valB + totC * valC + totD * valD).toFixed(2)
-  )}`
-);
+console.log(`Total portfolio value: ${Number(tot.toFixed(2))}`);
 
 /**********************************
 FUNCTIONS FOR CALCULATIONS
@@ -107,36 +39,44 @@ BECAUSE OF PRINCIPLE: HOISTING
 **********************************/
 
 function calcShareVal(array, buyDate, amount, type, id, date) {
-  let arr = [];
+  let buyDateArr = [];
+  let currentDateArr = [];
 
-  // find val of
   array.forEach((val, index) => {
-    if (val.endDate === date) {
-      if (id === 'A') valA = val.value;
-      if (id === 'B') valB = val.value;
-      if (id === 'C') valC = val.value;
-      if (id === 'D') valD = val.value;
-    }
-
     // Reformat date using moment library - easier to manage
     if (moment(buyDate).unix() >= moment(val.endDate).unix()) {
-      arr.push(index);
+      buyDateArr.push(index);
     }
   });
 
+  array.forEach((val, index) => {
+    if (moment(date).unix() >= moment(val.endDate).unix()) {
+      //console.log(val.endDate);
+      currentDateArr.push(index);
+    }
+  });
+
+  // console.log(buyDateArr);
+  // console.log(currentDateArr);
+
+  let j = Math.max(currentDateArr[currentDateArr.length - 1]);
+
+  //console.log(j);
+
   // find closest or exact date
-  let i = Math.max(arr[arr.length - 1]);
+  let i = Math.max(buyDateArr[buyDateArr.length - 1]);
+  //let j = Math.max(currentDateArr[currentDateArr.length - 1]);
+
+  // let test = array.find(function(element) {
+  //   return element.endDate === date;
+  // });
+  // //console.log(test.value);
+  // val = test.value;
+
   // Calc shares bought at that date
-  sharesBought = amount / array[i].value;
+  totValPerShare = amount / array[i].value * array[j].value;
 
-  // What securities are being bought/sold
-  // Get totals of individual shares
-  checkTypeId(id, type, sharesBought);
-}
+  //console.log(sharesBought);
 
-function checkTypeId(i, t, s) {
-  if (i === 'A') t === 'buy' ? (totA += s) : (totA -= s);
-  if (i === 'B') t === 'buy' ? (totB += s) : (totB -= s);
-  if (i === 'C') t === 'buy' ? (totC += s) : (totC -= s);
-  if (i === 'D') t === 'buy' ? (totD += s) : (totD -= s);
+  type === 'buy' ? (tot += totValPerShare) : (tot -= totValPerShare);
 }
