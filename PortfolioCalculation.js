@@ -29,7 +29,7 @@ let valC = 0;
 let valD = 0;
 
 // Figure out what Security is being accessed
-
+// Switch through the Securities for each transaction
 portfolio.transactions.forEach((val, index) => {
   switch (val.securityId) {
     case 'A':
@@ -104,6 +104,7 @@ BECAUSE OF PRINCIPLE: HOISTING
 function calcShareVal(array, buyDate, amount, type, id, date) {
   let arr = [];
 
+  // find val of
   array.forEach((val, index) => {
     if (val.endDate === date) {
       if (id === 'A') valA = val.value;
@@ -112,7 +113,7 @@ function calcShareVal(array, buyDate, amount, type, id, date) {
       if (id === 'D') valD = val.value;
     }
 
-    // Reduce date to epoc format and compare
+    // Reformat date using moment library - easier to manage
     if (moment(buyDate).unix() >= moment(val.endDate).unix()) {
       arr.push(index);
     }
@@ -124,27 +125,13 @@ function calcShareVal(array, buyDate, amount, type, id, date) {
   sharesBought = amount / array[i].value;
 
   // What securities are being bought/sold
-  checkTypeId(id, type);
+  // Get totals of individual shares
+  checkTypeId(id, type, sharesBought);
 }
 
-function checkTypeId(i, t) {
-  if (i === 'A' && t === 'buy') {
-    totA += sharesBought;
-  } else if (i === 'B' && t === 'buy') {
-    totB += sharesBought;
-  } else if (i === 'C' && t === 'buy') {
-    totC += sharesBought;
-  } else if (i === 'D' && t === 'buy') {
-    totD += sharesBought;
-  }
-
-  if (i === 'A' && t === 'sell') {
-    totA -= sharesBought;
-  } else if (i === 'B' && t === 'sell') {
-    totB -= sharesBought;
-  } else if (i === 'C' && t === 'sell') {
-    totC -= sharesBought;
-  } else if (i === 'D' && t === 'sell') {
-    totD -= sharesBought;
-  }
+function checkTypeId(i, t, s) {
+  if (i === 'A') t === 'buy' ? (totA += s) : (totA -= s);
+  if (i === 'B') t === 'buy' ? (totB += s) : (totB -= s);
+  if (i === 'C') t === 'buy' ? (totC += s) : (totC -= s);
+  if (i === 'D') t === 'buy' ? (totD += s) : (totD -= s);
 }
