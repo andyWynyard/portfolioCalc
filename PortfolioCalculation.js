@@ -79,11 +79,16 @@ portfolio.transactions.forEach((val, index) => {
 });
 
 /**********************************
-PRINT OUTS FOR VALUES
+PRINT OUTS FOR RESULTS
 **********************************/
 
 console.log(`*********** PORTFOLIO: ${process.argv[2]} ***********`);
-//
+
+/**************************************************
+Uncomment the following lines
+for a more detailed list of what you have
+***************************************************/
+
 // console.log(`A: ${totA} shares @ ${valA}`);
 // console.log(`B: ${totB} shares @ ${valB}`);
 // console.log(`C: ${totC} shares @ ${valC}`);
