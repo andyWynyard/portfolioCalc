@@ -11,7 +11,6 @@ let tot = 0;
 let val = 0;
 
 // Figure out what Security is being accessed
-// Switch through the Securities for each transaction
 portfolio.transactions.forEach((val, index) => {
   let raw = fs.readFileSync(`./Securities/${val.securityId}.json`);
   let currentSecurity = JSON.parse(raw);
@@ -20,7 +19,6 @@ portfolio.transactions.forEach((val, index) => {
     val.date,
     val.amount,
     val.type,
-    val.securityId,
     date
   );
 });
@@ -29,7 +27,7 @@ portfolio.transactions.forEach((val, index) => {
 PRINT OUTS FOR RESULTS
 **********************************/
 
-console.log(`*********** PORTFOLIO: ${process.argv[2]} ***********`);
+console.log(`*********** PORTFOLIO: ${process.argv[2]} @ ${date} ***********`);
 console.log(`Total portfolio value: ${Number(tot.toFixed(2))}`);
 
 /**********************************
@@ -38,45 +36,38 @@ CAN BE CALLED FROM HERE
 BECAUSE OF PRINCIPLE: HOISTING
 **********************************/
 
-function calcShareVal(array, buyDate, amount, type, id, date) {
+function calcShareVal(array, buyDate, amount, type, date) {
   let buyDateArr = [];
   let currentDateArr = [];
 
   array.forEach((val, index) => {
     // Reformat date using moment library - easier to manage
-    if (moment(buyDate).unix() >= moment(val.endDate).unix()) {
+    if (moment(val.endDate).unix() <= moment(buyDate).unix()) {
       buyDateArr.push(index);
     }
-  });
-
-  array.forEach((val, index) => {
-    if (moment(date).unix() >= moment(val.endDate).unix()) {
-      //console.log(val.endDate);
+    if (moment(val.endDate).unix() <= moment(date).unix()) {
       currentDateArr.push(index);
     }
   });
 
-  // console.log(buyDateArr);
-  // console.log(currentDateArr);
-
-  let j = Math.max(currentDateArr[currentDateArr.length - 1]);
-
-  //console.log(j);
-
   // find closest or exact date
   let i = Math.max(buyDateArr[buyDateArr.length - 1]);
-  //let j = Math.max(currentDateArr[currentDateArr.length - 1]);
-
-  // let test = array.find(function(element) {
-  //   return element.endDate === date;
-  // });
-  // //console.log(test.value);
-  // val = test.value;
+  let j = Math.max(currentDateArr[currentDateArr.length - 1]);
 
   // Calc shares bought at that date
-  totValPerShare = amount / array[i].value * array[j].value;
-
-  //console.log(sharesBought);
-
-  type === 'buy' ? (tot += totValPerShare) : (tot -= totValPerShare);
+  try {
+    totValPerShare = amount / array[i].value * array[j].value;
+  } catch (e) {
+    console.log(`****************************************************`);
+    console.log(`DATE: --${date}-- MAY NOT EXIST, PLEASE CHECK IT`);
+    return;
+  } finally {
+  }
+  try {
+    type === 'buy' ? (tot += totValPerShare) : (tot -= totValPerShare);
+  } catch (e) {
+    console.log(`Error: ${e}`);
+    return;
+  } finally {
+  }
 }
